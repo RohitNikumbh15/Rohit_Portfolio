@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rohit S. Nikumbh — Full Stack Developer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      /* ── DARK THEME (default) ── */
+      [data-theme="dark"] {
+        --black: #03030a;
+        --black2: #07070f;
+        --surface: #0c0c18;
+        --surface2: #121220;
+        --gold: #f0b429;
+        --gold2: #ffd166;
+        --gold3: #b8860b;
+        --white: #f5f5fa;
+        --muted: #6b6b8a;
+        --border: #1a1a2e;
+        --border2: #252540;
+        --cyan: #00d2d3;
+        --nav-bg: rgba(3,3,10,0.92);
+        --cursor-bg: #03030a;
+        --particle-color: 240,180,41;
+        --bg-body: #03030a;
+      }
+
+      /* ── LIGHT THEME ── */
+      [data-theme="light"] {
+        --black: #f4f4fc;
+        --black2: #eaeaf5;
+        --surface: #ffffff;
+        --surface2: #f0f0fa;
+        --gold: #b8860b;
+        --gold2: #e0a800;
+        --gold3: #8a6200;
+        --white: #12121e;
+        --muted: #5a5a7a;
+        --border: #d8d8ee;
+        --border2: #c8c8e0;
+        --cyan: #007a8a;
+        --nav-bg: rgba(244,244,252,0.94);
+        --cursor-bg: #f4f4fc;
+        --particle-color: 184,134,11;
+        --bg-body: #f4f4fc;
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--black);
+        color: var(--white);
+        font-family: "Outfit", sans-serif;
+        overflow-x: hidden;
+        cursor: none;
+        transition: background 0.35s, color 0.35s;
+      }
+
+      /* ── CUSTOM CURSOR ── */
+      #c1 {
+        position: fixed;
+        width: 8px; height: 8px;
+        background: var(--gold);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%,-50%);
+        transition: width .15s, height .15s, background .15s;
+        mix-blend-mode: normal;
+      }
+      #c2 {
+        position: fixed;
+        width: 36px; height: 36px;
+        border: 1.5px solid rgba(240,180,41,0.5);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%,-50%);
+        transition: left .12s ease, top .12s ease, width .25s, height .25s, border-color .25s;
+      }
+      /* trail ring */
+      #c3 {
+        position: fixed;
+        width: 60px; height: 60px;
+        border: 1px solid rgba(240,180,41,0.15);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9997;
+        transform: translate(-50%,-50%);
+        transition: left .22s ease, top .22s ease, width .3s, height .3s;
+      }
+      body.hovering #c1 { width: 12px; height: 12px; background: var(--gold2); }
+      body.hovering #c2 { width: 54px; height: 54px; border-color: rgba(240,180,41,0.8); }
+      body.hovering #c3 { width: 80px; height: 80px; border-color: rgba(240,180,41,0.25); }
+
+      #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+      nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+        padding: 0 4rem; height: 70px;
+        display: flex; align-items: center; justify-content: space-between;
+        transition: all .4s;
+      }
+      nav.scrolled {
+        background: var(--nav-bg);
+        backdrop-filter: blur(24px);
+        border-bottom: 1px solid var(--border2);
+        box-shadow: 0 4px 40px rgba(0,0,0,.3);
+      }
+      .nav-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem; letter-spacing: .08em;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; cursor: pointer;
+      }
+      .nav-center {
+        display: flex; align-items: center; gap: .3rem;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 2rem; padding: .35rem .5rem; position: relative;
+      }
+      .nav-pill {
+        position: absolute; height: calc(100% - .7rem);
+        background: linear-gradient(135deg, var(--gold3), var(--gold));
+        border-radius: 1.5rem;
+        transition: all .35s cubic-bezier(.34,1.56,.64,1);
+        pointer-events: none; top: .35rem;
+      }
+      .nav-item {
+        font-family: "JetBrains Mono", monospace; font-size: .7rem;
+        letter-spacing: .08em; text-transform: uppercase;
+        padding: .45rem 1.1rem; border-radius: 1.5rem; cursor: pointer;
+        position: relative; z-index: 1; color: var(--muted);
+        transition: color .3s; white-space: nowrap; border: none; background: none;
+      }
+      .nav-item.active { color: #0a0a0a; font-weight: 500; }
+      .nav-item:not(.active):hover { color: var(--white); }
+      .nav-right { display: flex; gap: .8rem; align-items: center; }
+      .nav-btn {
+        font-family: "JetBrains Mono", monospace; font-size: .68rem;
+        letter-spacing: .08em; text-transform: uppercase;
+        padding: .5rem 1.2rem; cursor: pointer; border: none; transition: all .22s;
+        text-decoration: none; display: inline-flex; align-items: center; gap: .4rem;
+      }
+      .nav-btn-gh {
+        background: var(--surface2); color: var(--muted);
+        border: 1px solid var(--border2); border-radius: .3rem;
+      }
+      .nav-btn-gh:hover { color: var(--white); }
+      .nav-btn-hire {
+        background: linear-gradient(135deg, var(--gold3), var(--gold));
+        color: #050505; border-radius: .3rem; font-weight: 600;
+      }
+      .nav-btn-hire:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(240,180,41,.4); }
+
+      /* Theme toggle */
+      .theme-toggle {
+        width: 42px; height: 24px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 12px;
+        cursor: pointer;
+        position: relative;
+        transition: all .3s;
+        flex-shrink: 0;
+        display: flex; align-items: center;
+        padding: 2px;
+      }
+      .theme-toggle-thumb {
+        width: 18px; height: 18px;
+        background: linear-gradient(135deg, var(--gold3), var(--gold));
+        border-radius: 50%;
+        transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px;
+      }
+      [data-theme="light"] .theme-toggle-thumb { transform: translateX(18px); }
+
+      section { position: relative; z-index: 1; }
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 0 4rem; }
+
+      .hero-badge {
+        display: inline-flex; align-items: center; gap: .6rem;
+        padding: .38rem 1rem .38rem .5rem;
+        border: 1px solid var(--border2); border-radius: 2rem; margin-bottom: 2.5rem;
+        font-family: "JetBrains Mono", monospace; font-size: .7rem;
+        color: var(--muted); letter-spacing: .08em;
+        opacity: 0; animation: riseUp .7s .1s forwards;
+      }
+      .badge-dot {
+        width: 24px; height: 24px;
+        background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.4);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      }
+      .badge-inner {
+        width: 8px; height: 8px; background: #22c55e;
+        border-radius: 50%; animation: glow 2s infinite;
+      }
+      @keyframes glow {
+        0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+        50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+      }
+      .hero-name {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(5rem,11vw,10rem);
+        line-height: .9; letter-spacing: .03em;
+        opacity: 0; animation: riseUp .8s .25s forwards;
+      }
+      .hero-name .n1 { display: block; color: var(--white); }
+      .hero-name .n2 {
+        display: block;
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, var(--gold3) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      }
+      .hero-sub {
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(.85rem,1.5vw,1.05rem); color: var(--muted);
+        margin: .8rem 0 2rem; opacity: 0; animation: riseUp .7s .4s forwards; min-height: 1.6rem;
+      }
+      .tw-cursor { color: var(--gold); animation: blink .9s infinite; }
+      @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+      .hero-desc {
+        max-width: 520px; color: var(--muted); font-size: .95rem;
+        line-height: 1.85; font-weight: 300; margin-bottom: 2.8rem;
+        opacity: 0; animation: riseUp .7s .55s forwards;
+      }
+      .hero-cta {
+        display: flex; gap: 1rem; flex-wrap: wrap;
+        opacity: 0; animation: riseUp .7s .7s forwards;
+      }
+      .cta-primary {
+        padding: .85rem 2.2rem;
+        background: linear-gradient(135deg, var(--gold3), var(--gold));
+        color: #050505; font-family: "JetBrains Mono", monospace;
+        font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+        border: none; cursor: pointer; font-weight: 600;
+        clip-path: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+        transition: all .25s;
+      }
+      .cta-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(240,180,41,.4); }
+      .cta-outline {
+        padding: .85rem 2.2rem; background: transparent; color: var(--gold);
+        font-family: "JetBrains Mono", monospace; font-size: .75rem;
+        letter-spacing: .1em; text-transform: uppercase;
+        border: 1px solid rgba(240,180,41,.4); cursor: pointer; transition: all .25s;
+        text-decoration: none; display: inline-flex; align-items: center; gap: .5rem;
+      }
+      .cta-outline:hover { background: rgba(240,180,41,.07); border-color: var(--gold); transform: translateY(-3px); }
+      .hero-card {
+        background: var(--surface); border: 1px solid var(--border2);
+        padding: 2rem; width: 260px; position: relative; overflow: hidden;
+      }
+      .hero-card::before {
+        content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg,transparent,var(--gold),transparent);
+      }
+      .hc-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: .8rem 0; border-bottom: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .hc-row:last-child { border-bottom: none; }
+      .hc-label { font-size: .65rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+      .hc-val { font-size: .85rem; color: var(--gold); font-weight: 500; }
+      .hero-scroll {
+        position: absolute; bottom: 2.5rem; left: 50%;
+        transform: translateX(-50%);
+        display: flex; flex-direction: column; align-items: center; gap: .5rem;
+        opacity: 0; animation: riseUp .7s 1.1s forwards; cursor: pointer;
+      }
+      .scroll-txt { font-family: "JetBrains Mono", monospace; font-size: .62rem; color: var(--muted); letter-spacing: .2em; text-transform: uppercase; }
+      .scroll-track { width: 1px; height: 48px; background: linear-gradient(to bottom,var(--gold),transparent); animation: scrollPulse 2s ease-in-out infinite; }
+      @keyframes scrollPulse {
+        0% { transform: scaleY(0); transform-origin: top; opacity: 0; }
+        60% { opacity: 1; }
+        100% { transform: scaleY(1); transform-origin: top; opacity: 0; }
+      }
+      .eyebrow {
+        display: flex; align-items: center; gap: 1rem;
+        font-family: "JetBrains Mono", monospace; font-size: .7rem;
+        color: var(--gold); letter-spacing: .2em; text-transform: uppercase; margin-bottom: .8rem;
+      }
+      .eyebrow::before { content: ""; width: 30px; height: 1px; background: var(--gold); opacity: .5; }
+      .sec-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(3rem,6vw,5.5rem); letter-spacing: .04em; line-height: 1;
+        margin-bottom: 3.5rem; color: var(--white);
+      }
+      .sec-title span {
+        background: linear-gradient(135deg,var(--gold),var(--gold2));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      }
+      .about-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 5rem; align-items: start; }
+      .stat-panel { background: var(--surface); border: 1px solid var(--border2); position: relative; overflow: hidden; }
+      .stat-panel::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(135deg,rgba(240,180,41,.06),transparent 60%); pointer-events: none;
+      }
+      .stat-panel-head {
+        padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace; font-size: .65rem;
+        color: var(--gold); letter-spacing: .15em; text-transform: uppercase;
+      }
+      .stat-grid { display: grid; grid-template-columns: 1fr 1fr; }
+      .stat-cell { padding: 1.5rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+      .stat-cell:nth-child(2n) { border-right: none; }
+      .stat-cell:nth-child(3),.stat-cell:nth-child(4) { border-bottom: none; }
+      .stat-num { font-family: "Bebas Neue", sans-serif; font-size: 3rem; color: var(--gold); line-height: 1; letter-spacing: .04em; }
+      .stat-lbl { font-size: .72rem; color: var(--muted); margin-top: .3rem; letter-spacing: .06em; text-transform: uppercase; }
+      .location-row {
+        padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace; font-size: .72rem; color: var(--muted);
+        display: flex; align-items: center; gap: .6rem;
+      }
+      .location-row svg { color: var(--gold); flex-shrink: 0; }
+      .skill-table { border: 1px solid var(--border2); overflow: hidden; }
+      .skill-tr {
+        display: grid; grid-template-columns: 180px 1fr;
+        border-bottom: 1px solid var(--border); transition: background .2s;
+      }
+      .skill-tr:last-child { border-bottom: none; }
+      .skill-tr:hover { background: rgba(240,180,41,.03); }
+      .skill-th {
+        padding: 1.3rem 1.8rem; border-right: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace; font-size: .68rem;
+        color: var(--gold); letter-spacing: .12em; text-transform: uppercase;
+        display: flex; align-items: center;
+      }
+      .skill-td { padding: 1.1rem 1.8rem; display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+      .chip {
+        padding: .28rem .8rem; border: 1px solid var(--border2);
+        background: var(--surface);
+        font-family: "JetBrains Mono", monospace; font-size: .68rem;
+        color: var(--muted); transition: all .22s; cursor: default;
+        position: relative; overflow: hidden;
+      }
+      .chip::before {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(135deg,var(--gold),var(--gold2));
+        opacity: 0; transition: opacity .22s;
+      }
+      .chip:hover::before { opacity: .12; }
+      .chip:hover { border-color: var(--gold); color: var(--gold); }
+      .chip span { position: relative; z-index: 1; }
+      .exp-wrap { border: 1px solid var(--border2); position: relative; overflow: hidden; }
+      .exp-wrap::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+        background: linear-gradient(to bottom,var(--gold),var(--gold3),transparent);
+      }
+      .exp-head {
+        padding: 2rem 2.5rem; border-bottom: 1px solid var(--border2);
+        display: flex; justify-content: space-between; align-items: flex-start;
+        flex-wrap: wrap; gap: 1rem;
+      }
+      .exp-title-main { font-family: "Bebas Neue", sans-serif; font-size: 2.2rem; letter-spacing: .06em; color: var(--white); line-height: 1; }
+      .exp-company-main { font-family: "JetBrains Mono", monospace; font-size: .8rem; color: var(--gold); letter-spacing: .06em; margin-top: .4rem; }
+      .exp-badge {
+        padding: .5rem 1.2rem;
+        background: rgba(240,180,41,.1); border: 1px solid rgba(240,180,41,.3);
+        font-family: "JetBrains Mono", monospace; font-size: .7rem;
+        color: var(--gold); letter-spacing: .08em; align-self: flex-start;
+      }
+      .exp-body { padding: 2rem 2.5rem; }
+      .exp-list { list-style: none; display: flex; flex-direction: column; gap: .8rem; }
+      .exp-list li {
+        color: var(--muted); font-size: .93rem; line-height: 1.7;
+        padding-left: 1.5rem; position: relative; font-weight: 300;
+      }
+      .exp-list li::before {
+        content: ""; position: absolute; left: 0; top: .6rem;
+        width: 6px; height: 6px; border: 1px solid var(--gold);
+        border-radius: 50%; background: rgba(240,180,41,.2);
+      }
+      .exp-list a { color: var(--gold); text-decoration: none; }
+      .exp-list a:hover { text-decoration: underline; }
+      .proj-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(350px,1fr)); gap: 1.5rem; }
+      .proj-card {
+        background: var(--surface); border: 1px solid var(--border2);
+        padding: 2rem; position: relative; overflow: hidden;
+        transition: border-color .3s, transform .3s; cursor: pointer;
+        display: flex; flex-direction: column;
+      }
+      .proj-card:hover { border-color: var(--gold); transform: translateY(-6px); }
+      .proj-card::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(135deg,rgba(240,180,41,.04),transparent 60%);
+        opacity: 0; transition: opacity .3s; pointer-events: none;
+      }
+      .proj-card:hover::after { opacity: 1; }
+      .proj-glow {
+        position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg,transparent,var(--gold),transparent);
+        transform: scaleX(0); transform-origin: left; transition: transform .4s;
+      }
+      .proj-card:hover .proj-glow { transform: scaleX(1); }
+      .proj-n { font-family: "JetBrains Mono", monospace; font-size: .62rem; color: var(--gold); letter-spacing: .2em; margin-bottom: 1rem; opacity: .6; }
+      .proj-name { font-family: "Bebas Neue", sans-serif; font-size: 1.8rem; letter-spacing: .04em; margin-bottom: .8rem; line-height: 1.1; color: var(--white); }
+      .proj-desc { color: var(--muted); font-size: .88rem; line-height: 1.72; font-weight: 300; flex: 1; margin-bottom: 1.5rem; }
+      .proj-foot { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: .8rem; }
+      .techs { display: flex; flex-wrap: wrap; gap: .4rem; }
+      .tech {
+        font-family: "JetBrains Mono", monospace; font-size: .62rem;
+        padding: .2rem .55rem; border: 1px solid rgba(0,210,211,.25);
+        color: var(--cyan); background: rgba(0,210,211,.05);
+      }
+      .proj-link {
+        font-family: "JetBrains Mono", monospace; font-size: .68rem;
+        color: var(--gold); text-decoration: none;
+        display: flex; align-items: center; gap: .3rem;
+        transition: color .2s; white-space: nowrap;
+      }
+      .proj-link:hover { color: var(--gold2); }
+      .cert-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 1rem; }
+      .cert-card {
+        background: var(--surface); border: 1px solid var(--border2);
+        padding: 1.8rem; transition: all .25s; position: relative; overflow: hidden;
+      }
+      .cert-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+      .cert-card::before {
+        content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg,transparent,var(--gold),transparent);
+        transform: scaleX(0); transition: transform .35s; transform-origin: center;
+      }
+      .cert-card:hover::before { transform: scaleX(1); }
+      .cert-idx { font-family: "JetBrains Mono", monospace; font-size: .6rem; color: var(--gold); letter-spacing: .18em; margin-bottom: 1rem; opacity: .6; }
+      .cert-name { font-size: .93rem; font-weight: 600; line-height: 1.45; margin-bottom: .5rem; color: var(--white); }
+      .cert-issuer { font-family: "JetBrains Mono", monospace; font-size: .68rem; color: var(--muted); letter-spacing: .05em; margin-bottom: .8rem; }
+      .cert-link {
+        font-family: "JetBrains Mono", monospace; font-size: .65rem;
+        color: var(--gold); text-decoration: none; display: inline-flex;
+        align-items: center; gap: .3rem; transition: color .2s;
+        border-bottom: 1px solid rgba(240,180,41,.3); padding-bottom: 1px;
+      }
+      .cert-link:hover { color: var(--gold2); border-color: var(--gold2); }
+      .ci {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 1.1rem 1.4rem; background: var(--surface);
+        border: 1px solid var(--border2); text-decoration: none;
+        color: var(--muted); font-family: "JetBrains Mono", monospace;
+        font-size: .78rem; transition: all .22s; letter-spacing: .03em;
+        position: relative; overflow: hidden; margin-bottom: .8rem;
+      }
+      .ci::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+        background: linear-gradient(90deg,rgba(240,180,41,.1),transparent);
+        transition: width .3s;
+      }
+      .ci:hover::before { width: 100%; }
+      .ci:hover { border-color: rgba(240,180,41,.5); color: var(--gold); transform: translateX(5px); }
+      .ci-icon {
+        width: 32px; height: 32px; background: var(--surface2);
+        border: 1px solid var(--border2); display: flex; align-items: center;
+        justify-content: center; flex-shrink: 0; color: var(--gold); position: relative; z-index: 1;
+      }
+      .ci-text { position: relative; z-index: 1; }
+      .contact-heading { font-family: "Bebas Neue", sans-serif; font-size: clamp(3rem,7vw,6rem); letter-spacing: .04em; line-height: .95; margin-bottom: 1.5rem; }
+      .contact-heading .grad { background: linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+      footer {
+        border-top: 1px solid var(--border); padding: 2rem 4rem;
+        display: flex; justify-content: space-between; align-items: center;
+        position: relative; z-index: 1;
+      }
+      .foot-l,.foot-r { font-family: "JetBrains Mono", monospace; font-size: .7rem; color: var(--muted); }
+      .foot-r span { color: var(--gold); }
+      .rv { opacity: 0; transform: translateY(32px); transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+      .rv.on { opacity: 1; transform: none; }
+      .rv.d1 { transition-delay: .1s; }
+      .rv.d2 { transition-delay: .2s; }
+      .rv.d3 { transition-delay: .3s; }
+      .rv.d4 { transition-delay: .4s; }
+      @keyframes riseUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="bg-canvas"></canvas>
+    <div id="c1"></div>
+    <div id="c2"></div>
+    <div id="c3"></div>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      function ParticleCanvas({ theme }) {
+        useEffect(() => {
+          const canvas = document.getElementById("bg-canvas");
+          const ctx = canvas.getContext("2d");
+          let W, H, particles = [], animId;
+          const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+          resize();
+          window.addEventListener("resize", resize);
+          const N = 80;
+          for (let i = 0; i < N; i++)
+            particles.push({ x: Math.random()*W, y: Math.random()*H, vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3, r: Math.random()*1.5+.5, a: Math.random() });
+          const getColor = () => theme === "light" ? "184,134,11" : "240,180,41";
+          const draw = () => {
+            ctx.clearRect(0, 0, W, H);
+            const c = getColor();
+            particles.forEach(p => {
+              p.x += p.vx; p.y += p.vy;
+              if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+              if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+              ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+              ctx.fillStyle = `rgba(${c},${p.a * (theme==="light"?.2:.35)})`; ctx.fill();
+            });
+            for (let i = 0; i < particles.length; i++)
+              for (let j = i+1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx*dx + dy*dy);
+                if (d < 120) {
+                  ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
+                  ctx.strokeStyle = `rgba(${c},${0.06*(1-d/120)})`; ctx.lineWidth = .5; ctx.stroke();
+                }
+              }
+            animId = requestAnimationFrame(draw);
+          };
+          draw();
+          return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
+        }, [theme]);
+        return null;
+      }
+
+      function Cursor() {
+        useEffect(() => {
+          const c1 = document.getElementById("c1"), c2 = document.getElementById("c2"), c3 = document.getElementById("c3");
+          const move = e => {
+            c1.style.left = e.clientX+"px"; c1.style.top = e.clientY+"px";
+            c2.style.left = e.clientX+"px"; c2.style.top = e.clientY+"px";
+            c3.style.left = e.clientX+"px"; c3.style.top = e.clientY+"px";
+          };
+          window.addEventListener("mousemove", move);
+          const over = () => document.body.classList.add("hovering");
+          const out = () => document.body.classList.remove("hovering");
+          document.querySelectorAll("button,a,.proj-card,.cert-card,.chip").forEach(e => {
+            e.addEventListener("mouseenter", over); e.addEventListener("mouseleave", out);
+          });
+          return () => window.removeEventListener("mousemove", move);
+        }, []);
+        return null;
+      }
+
+      function useTypewriter(words) {
+        const [text, setText] = useState("");
+        const [wi, setWi] = useState(0);
+        const [del, setDel] = useState(false);
+        useEffect(() => {
+          const w = words[wi];
+          const t = del
+            ? setTimeout(() => { setText(p => p.slice(0,-1)); if (text.length===1) { setDel(false); setWi(p=>(p+1)%words.length); } }, 55)
+            : setTimeout(() => { setText(w.slice(0,text.length+1)); if (text===w) setTimeout(()=>setDel(true),1700); }, 85);
+          return () => clearTimeout(t);
+        }, [text, del, wi]);
+        return text;
+      }
+
+      function useReveal() {
+        const ref = useRef();
+        useEffect(() => {
+          const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) e.target.classList.add("on"); }, { threshold: .1 });
+          if (ref.current) obs.observe(ref.current);
+          return () => obs.disconnect();
+        }, []);
+        return ref;
+      }
+
+      const NAV_ITEMS = ["About","Skills","Experience","Projects","Certifications","Contact"];
+
+      function Nav({ theme, toggleTheme }) {
+        const [active, setActive] = useState("About");
+        const [scrolled, setScrolled] = useState(false);
+        const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 });
+        const itemRefs = useRef([]);
+        useEffect(() => {
+          const onScroll = () => setScrolled(window.scrollY > 40);
+          window.addEventListener("scroll", onScroll);
+          return () => window.removeEventListener("scroll", onScroll);
+        }, []);
+        useEffect(() => {
+          const handleScroll = () => {
+            const sections = NAV_ITEMS.map(n => document.getElementById(n.toLowerCase()));
+            let cur = "About";
+            sections.forEach(s => { if (s && window.scrollY >= s.offsetTop - 200) cur = s.id.charAt(0).toUpperCase()+s.id.slice(1); });
+            setActive(cur);
+          };
+          window.addEventListener("scroll", handleScroll);
+          return () => window.removeEventListener("scroll", handleScroll);
+        }, []);
+        useEffect(() => {
+          const idx = NAV_ITEMS.indexOf(active);
+          const el = itemRefs.current[idx];
+          if (el) {
+            const parent = el.parentElement;
+            const pRect = parent.getBoundingClientRect();
+            const eRect = el.getBoundingClientRect();
+            setPillStyle({ left: eRect.left - pRect.left, width: eRect.width });
+          }
+        }, [active]);
+        const scroll = id => document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: "smooth" });
+        return (
+          <nav className={scrolled ? "scrolled" : ""}>
+            <div className="nav-logo" onClick={() => window.scrollTo({ top:0, behavior:"smooth" })}>RSN</div>
+            <div className="nav-center">
+              <div className="nav-pill" style={{ left: pillStyle.left, width: pillStyle.width }} />
+              {NAV_ITEMS.map((n,i) => (
+                <button key={n} className={`nav-item${active===n?" active":""}`}
+                  ref={el => (itemRefs.current[i]=el)} onClick={() => scroll(n)}>{n}</button>
+              ))}
+            </div>
+            <div className="nav-right">
+              <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
+                <div className="theme-toggle-thumb">{theme==="dark" ? "🌙" : "☀️"}</div>
+              </button>
+              <a className="nav-btn nav-btn-gh" href="https://github.com/RohitNikumbh15" target="_blank" rel="noreferrer">GitHub</a>
+              <a className="nav-btn nav-btn-hire" href="#contact" onClick={e => { e.preventDefault(); scroll("Contact"); }}>Hire Me</a>
+            </div>
+          </nav>
+        );
+      }
+
+      function Hero() {
+        const role = useTypewriter(["Full Stack Developer","Java Developer","Backend Engineer","Spring Boot Dev"]);
+        const scroll = id => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+        return (
+          <section id="hero" style={{ minHeight:"100vh", display:"flex", alignItems:"center", padding:"0 4rem", overflow:"hidden", position:"relative", zIndex:1 }}>
+            <div style={{ maxWidth:1200, margin:"0 auto", width:"100%", display:"grid", gridTemplateColumns:"1fr auto", alignItems:"center", gap:"4rem" }}>
+              <div>
+           
+                <h1 className="hero-name">
+                  <span className="n1">Rohit S.</span>
+                  <span className="n2">Nikumbh.</span>
+                </h1>
+                <p className="hero-sub">{role}<span className="tw-cursor">|</span></p>
+                <p className="hero-desc">
+                  Full Stack Developer with hands-on internship experience in{" "}
+                  <strong style={{ color:"var(--white)", fontWeight:500 }}>Java, Spring Boot, MySQL, and modern web technologies</strong>.
+                  Passionate about building scalable and user-friendly applications.
+                </p>
+                <div className="hero-cta">
+                  <button className="cta-primary" onClick={() => scroll("projects")}>View Projects</button>
+                  <a className="cta-outline" href="https://github.com/RohitNikumbh15" target="_blank" rel="noreferrer">GitHub ↗</a>
+                  <a className="cta-outline" href="https://www.linkedin.com/in/rohit-nikumbh-6a375632a/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+                  <a className="cta-outline" href="https://rohit-nikumbh.vercel.app/" target="_blank" rel="noreferrer">Portfolio ↗</a>
+                </div>
+              </div>
+              <div style={{ opacity:0, animation:"riseUp .8s .3s forwards" }}>
+                <div className="hero-card">
+                  {[["Role","Full Stack Dev"],["CGPA","8.6 / 10"],["Experience","3 Months"],["Status","Open to Work"]].map(([l,v]) => (
+                    <div className="hc-row" key={l}><span className="hc-label">{l}</span><span className="hc-val">{v}</span></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="hero-scroll" onClick={() => scroll("about")}>
+              <span className="scroll-txt">scroll</span>
+              <div className="scroll-track" />
+            </div>
+          </section>
+        );
+      }
+
+      function About() {
+        const ref = useReveal();
+        return (
+          <section id="about" style={{ padding:"9rem 0", position:"relative", zIndex:1 }}>
+            <div className="wrap">
+              <div ref={ref} className="rv">
+                <p className="eyebrow">01 — About</p>
+                <h2 className="sec-title">Who I <span>Am</span></h2>
+              </div>
+              <div className="about-grid">
+                <div className="rv">
+                  <p style={{ color:"var(--muted)", lineHeight:1.9, fontSize:".95rem", fontWeight:300, marginBottom:"1.2rem" }}>
+                    Full Stack Developer with internship experience in{" "}
+                    <strong style={{ color:"var(--white)", fontWeight:500 }}>Java, Spring Boot, MySQL, HTML, CSS, and JavaScript</strong>.
+                    Developed and maintained 5+ backend features, optimized database operations, and contributed to responsive web applications.
+                  </p>
+                  <p style={{ color:"var(--muted)", lineHeight:1.9, fontSize:".95rem", fontWeight:300, marginBottom:"1.2rem" }}>
+                    Skilled in{" "}
+                    <strong style={{ color:"var(--white)", fontWeight:500 }}>REST API development, database design, software testing, and Agile development practices</strong>.
+                    Gained real-world experience as a{" "}
+                    <strong style={{ color:"var(--white)", fontWeight:500 }}>Full Stack Developer Intern at Infisoft, Pune</strong>{" "}
+                    where I worked on the live production product{" "}
+                    <a href="https://talkify.life/Eindex.aspx" target="_blank" rel="noreferrer" style={{ color:"var(--gold)", fontWeight:500, textDecoration:"none" }}>talkify.life</a>.
+                  </p>
+                  <p style={{ color:"var(--muted)", lineHeight:1.9, fontSize:".95rem", fontWeight:300 }}>
+                    Strong problem-solving abilities with a passion for building scalable and user-friendly applications.
+                  </p>
+                </div>
+                <div className="rv d2">
+                  <div className="stat-panel">
+                    <div className="stat-panel-head">// quick stats</div>
+                    <div className="stat-grid">
+                      {[["8.6","CGPA"],["5+","Certs"],["3mo","Intern"],["4+","Projects"]].map(([n,l]) => (
+                        <div className="stat-cell" key={l}><div className="stat-num">{n}</div><div className="stat-lbl">{l}</div></div>
+                      ))}
+                    </div>
+                    <div className="location-row">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      Pune / Dhule, Maharashtra, India
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function Skills() {
+        const ref = useReveal();
+        const rows = [
+          { cat: "Languages", skills: ["Java","JavaScript","HTML5","CSS3","PHP"] },
+          { cat: "Frameworks", skills: ["Spring Boot","React (Basic)",".NET (Basic)","Node.js (Basic)"] },
+          { cat: "Database", skills: ["MySQL","JDBC","SQL Server"] },
+          { cat: "Tools", skills: ["Git","GitHub","VS Code","Postman"] },
+          { cat: "Concepts", skills: ["OOP","MVC","CRUD","REST APIs","Agile"] },
+        ];
+        return (
+          <section id="skills" style={{ padding:"9rem 0", background:"linear-gradient(to bottom,var(--black),var(--black2))", position:"relative", zIndex:1 }}>
+            <div className="wrap">
+              <div ref={ref} className="rv">
+                <p className="eyebrow">02 — Skills</p>
+                <h2 className="sec-title">Tech <span>Stack</span></h2>
+              </div>
+              <div className="rv d1 skill-table">
+                {rows.map(r => (
+                  <div className="skill-tr" key={r.cat}>
+                    <div className="skill-th">{r.cat}</div>
+                    <div className="skill-td">
+                      {r.skills.map(s => <div className="chip" key={s}><span>{s}</span></div>)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function Experience() {
+        const ref = useReveal();
+        return (
+          <section id="experience" style={{ padding:"9rem 0", position:"relative", zIndex:1 }}>
+            <div className="wrap">
+              <div ref={ref} className="rv">
+                <p className="eyebrow">03 — Experience</p>
+                <h2 className="sec-title">Work <span>History</span></h2>
+              </div>
+              <div className="rv d1 exp-wrap">
+                <div className="exp-head">
+                  <div>
+                    <div className="exp-title-main">Full Stack Developer Intern</div>
+                    <div className="exp-company-main">Infisoft, Pune</div>
+                  </div>
+                  <div className="exp-badge">Duration: 3 Months</div>
+                </div>
+                <div className="exp-body">
+                  <ul className="exp-list">
+                    <li>
+                      Worked on the live production application{" "}
+                      <a href="https://talkify.life/Eindex.aspx" target="_blank" rel="noreferrer">talkify.life</a>{" "}
+                      as a Full Stack Developer.
+                    </li>
+                    <li>Developed and maintained 5+ backend features for both the Admin Panel and User Panel using Java and Spring Boot.</li>
+                    <li>Designed and optimized MySQL database schemas; implemented CRUD operations and REST APIs.</li>
+                    <li>Contributed to responsive front-end modules using HTML, CSS, and JavaScript.</li>
+                    <li>Performed unit and integration testing to ensure feature quality and reliability.</li>
+                    <li>Collaborated using Agile/Scrum methodology with sprint planning and daily standups.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function Projects() {
+        const ref = useReveal();
+        const projects = [
+          {
+            n: "01", name: "talkify.life",
+            desc: "Live production application — Full Stack Developer. Built and maintained 5+ features for Admin Panel and User Panel, designed MySQL schemas, developed REST APIs, and contributed to front-end modules.",
+            techs: ["Java","Spring Boot","MySQL","HTML","CSS","JS"],
+            link: "https://talkify.life/Eindex.aspx",
+          },
+          {
+            n: "02", name: "Student Result Mgmt",
+            desc: "Full-stack web app for managing student results with admin and student login roles. Normalized MySQL schema, REST APIs via Spring Boot, and role-based access control.",
+            techs: ["Java","Spring Boot","MySQL","HTML/CSS/JS"],
+            link: "https://github.com/RohitNikumbh15/Student-Result-Management-System/tree/main/studentresult",
+          },
+          {
+            n: "03", name: "Employee Attendance System",
+            desc: "Full-stack Employee Attendance Management System to manage employee records, daily attendance, working hours, overtime calculations, and monthly summaries. REST APIs + MySQL backend.",
+            techs: ["Java","Spring Boot","MySQL","REST API"],
+            link: "https://github.com/RohitNikumbh15/attendance-management-system",
+          },
+          {
+            n: "04", name: "Personal Portfolio",
+            desc: "Responsive developer portfolio showcasing projects, skills, and certifications with smooth scroll, animated components, dark/light mode, and a custom cursor.",
+            techs: ["HTML","CSS","JavaScript","React"],
+            link: "https://rohit-nikumbh.vercel.app/",
+          },
+        ];
+        return (
+          <section id="projects" style={{ padding:"9rem 0", background:"linear-gradient(to bottom,var(--black2),var(--black))", position:"relative", zIndex:1 }}>
+            <div className="wrap">
+              <div ref={ref} className="rv">
+                <p className="eyebrow">04 — Projects</p>
+                <h2 className="sec-title">What I've <span>Built</span></h2>
+              </div>
+              <div className="proj-grid">
+                {projects.map((p,i) => (
+                  <div className={`proj-card rv d${i+1}`} key={p.n}>
+                    <div className="proj-glow" />
+                    <p className="proj-n">Project {p.n}</p>
+                    <h3 className="proj-name">{p.name}</h3>
+                    <p className="proj-desc">{p.desc}</p>
+                    <div className="proj-foot">
+                      <div className="techs">{p.techs.map(t => <span className="tech" key={t}>{t}</span>)}</div>
+                      <a className="proj-link" href={p.link} target="_blank" rel="noreferrer">View ↗</a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function Certifications() {
+        const ref = useReveal();
+        const certs = [
+          {
+            n: "01", name: "Full Stack Development Internship Certificate",
+            issuer: "Infisoft, Pune — 3 Months",
+            link: "https://www.linkedin.com/posts/rohit-nikumbh-6a375632a_internship-learning-developer-share-7394578368173592577-TIbv/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFMMdVsBfuOrZm8QCrwcHoCGCpKmYA3NLjg",
+          },
+          {
+            n: "02", name: "Java Full-Stack Development Certification",
+            issuer: "Java · Spring Boot · MySQL · Frontend Basics",
+            link: null,
+          },
+          {
+            n: "03", name: "Web Development Certification",
+            issuer: "CodSoft",
+            link: "https://www.linkedin.com/posts/rohit-nikumbh-6a375632a_webdevelopment-internship-codsoft-activity-7299426895010357248-k7Cn?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFMMdVsBfuOrZm8QCrwcHoCGCpKmYA3NLjg",
+          },
+          {
+            n: "04", name: "Frontend Development Certification",
+            issuer: "CodeAlpha",
+            link: "https://www.linkedin.com/posts/rohit-nikumbh-6a375632a_frontenddevelopment-internshipsuccess-codealpha-activity-7297137147688423424-vF4v?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFMMdVsBfuOrZm8QCrwcHoCGCpKmYA3NLjg",
+          },
+        ];
+        return (
+          <section id="certifications" style={{ padding:"9rem 0", position:"relative", zIndex:1 }}>
+            <div className="wrap">
+              <div ref={ref} className="rv">
+                <p className="eyebrow">05 — Certifications</p>
+                <h2 className="sec-title">My <span>Credentials</span></h2>
+              </div>
+              <div className="cert-grid">
+                {certs.map((c,i) => (
+                  <div className={`cert-card rv d${i+1}`} key={c.n}>
+                    <p className="cert-idx">CERT — {c.n}</p>
+                    <p className="cert-name">{c.name}</p>
+                    <p className="cert-issuer">{c.issuer}</p>
+                    {c.link && (
+                      <a className="cert-link" href={c.link} target="_blank" rel="noreferrer">
+                        View Certificate ↗
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function Contact() {
+        const ref = useReveal();
+        const links = [
+          { label: "rohit.nikumbh.1510@gmail.com", href: "mailto:rohit.nikumbh.1510@gmail.com" },
+          { label: "+91 9322563550", href: "tel:+919322563550" },
+          { label: "linkedin.com/in/rohit-nikumbh-6a375632a", href: "https://www.linkedin.com/in/rohit-nikumbh-6a375632a/" },
+          { label: "github.com/RohitNikumbh15", href: "https://github.com/RohitNikumbh15" },
+          { label: "rohit-nikumbh.vercel.app", href: "https://rohit-nikumbh.vercel.app/" },
+        ];
+        return (
+          <section id="contact" style={{ padding:"9rem 0", position:"relative", zIndex:1 }}>
+            <div className="wrap">
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"6rem", alignItems:"center" }}>
+                <div ref={ref} className="rv">
+                  <p className="eyebrow">06 — Contact</p>
+                  <h2 className="contact-heading">Let's Build<br/><span className="grad">Something.</span></h2>
+                  <p style={{ color:"var(--muted)", fontSize:".95rem", lineHeight:1.85, fontWeight:300 }}>
+                    Open to full-time roles, internships, freelance work, and collaborations. Feel free to reach out.
+                  </p>
+                </div>
+                <div className="rv d2">
+                  {links.map(l => (
+                    <a className="ci" href={l.href} key={l.label} target={l.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+                      <div className="ci-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </div>
+                      <span className="ci-text">{l.label}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function App() {
+        const [theme, setTheme] = useState("dark");
+        const toggleTheme = () => {
+          const next = theme === "dark" ? "light" : "dark";
+          setTheme(next);
+          document.documentElement.setAttribute("data-theme", next);
+        };
+        useEffect(() => {
+          document.documentElement.setAttribute("data-theme", theme);
+        }, []);
+        useEffect(() => {
+          const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("on"); });
+          }, { threshold: .1 });
+          document.querySelectorAll(".rv").forEach(el => obs.observe(el));
+          return () => obs.disconnect();
+        }, []);
+        return (
+          <>
+            <ParticleCanvas theme={theme} />
+            <Cursor />
+            <Nav theme={theme} toggleTheme={toggleTheme} />
+            <Hero />
+            <About />
+            <Skills />
+            <Experience />
+            <Projects />
+            <Certifications />
+            <Contact />
+            <footer>
+              <span className="foot-l">© 2025 Rohit S. Nikumbh</span>
+              <span className="foot-r">Designed & built with <span>passion</span></span>
+            </footer>
+          </>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById("root"));
+    </script>
+  </body>
+</html>
